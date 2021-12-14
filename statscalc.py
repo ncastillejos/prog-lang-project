@@ -122,14 +122,13 @@ def findKey(list, k):
 
 def statsOps(list):
     print("stats operation function")
+    mean(list)
     
 def searchData(list, searchcol, searchval):
     length = len(list)
-    print("entered search func\nsearchcol: ", searchcol)
     keyIndex = findKey(list, searchcol)
     if keyIndex <= -1:
         return (searchcol, " column not found")
-
   
     templist = quickSort(list, length, searchcol, keyIndex)
     cols = []
@@ -145,10 +144,12 @@ def searchData(list, searchcol, searchval):
         if cols[i][1] == searchval:
             foundindex.append(i)
     print(foundindex, "\n")
-    
-    for i in foundindex:
-        ind = int(foundindex[i])
-        print(searchval, " found in", searchcol, " at position ", foundindex[i], ": ", list[ind] ,"\n")
+    if len(foundindex) == 0:
+        print("value not found\n ")
+    else:    
+        for i in foundindex:
+            ind = int(foundindex[i])
+            print(searchval, " found in", searchcol, " at position ", foundindex[i], ": ", list[ind] ,"\n")
 
     
     # foundindex = []
@@ -158,6 +159,25 @@ def searchData(list, searchcol, searchval):
 
     #show updated, sorted list
     #print(*templist, sep="\n")
+
+def mean(list):
+    mean = 0.0  #hold mean variable
+    count = 0   #hold number of values present
+
+    print("Enter the column that you would like to calculate the MEAN for: ")
+    columnChoice = input()  #hold the specific column of mean value
+
+    print("Caculating Mean...")
+    for dict in list:
+        for key in (dict):
+            
+            if(key[0] == columnChoice):
+                mean = mean + int(key[1]) #add each value to mean
+                count = count + 1  #keep number count
+
+    mean = mean / count #calculate actual mean value
+    print("mean for ", columnChoice, " is ", mean, "\n")
+
 
 
 def main():
@@ -202,7 +222,11 @@ def main():
                     #print("Search dataset or specific column?\n")
                     scope = input("Search dataset (d) or specific column (c)? ").lower()
                     if scope == 'c':
-                        print('scope: c')
+                        for dict in clean_list:    
+                            for set in dict:
+                                print(set[0], "\t")
+                            break;
+
                         col = input("Enter column to search in: ")
                         searchData(clean_list, col, sval)
                     elif scope == 'd':
