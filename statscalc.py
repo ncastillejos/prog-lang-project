@@ -1,6 +1,8 @@
 import csv
 from collections import OrderedDict 
 from typing import OrderedDict
+from random import randint
+
 
 
 def filereader(file_path):
@@ -13,7 +15,6 @@ def filereader(file_path):
         list_of_dict = list(dict_reader)
     return list_of_dict
 
-#def cleanup():
 def non_num(list):
 
     # create a new list
@@ -56,6 +57,7 @@ def rem_dups(list):
     newlist = []
     for dict in list:
         d = tuple(dict.items())
+        # print(d, '\n')
         if d not in seen:
             seen.add(d)
             newlist.append(d)
@@ -63,26 +65,84 @@ def rem_dups(list):
     return newlist
 
 
+def quickSort(list, length, scol, sindex):
+    listlen = length
+    if(listlen < 2):
+        return list
+    low = [] 
+    same = [] 
+    high = []
+    
+    #generate random value in range of list length
+    randrow = randint(0, listlen - 1)
+
+    #unpack row/dictionary
+    randdict = list[randrow]
+    randc = randdict[sindex]
+
+    #convert col c data to float, (col, data)
+    pivot = float(randc[1])
+
+    #print('randrow', randrow, ': ', randdict, '\n')
+    print(sindex, ': randc:', randc, '\n')
+    
+    for dict in list:
+        for set in dict:
+            #check key value (key, data)
+            if(set[0] == scol):
+                val = float(set[1])
+
+                if(val < pivot):
+                    low.append(dict)
+                elif (val == pivot):
+                    same.append(dict)
+                elif (val > pivot):
+                    high.append(dict)
+    
+    #update length of of low and high
+    llength = len(low)
+    hlength = len(high)
+
+    return (quickSort(low, llength, scol, sindex) + same + quickSort(high, hlength, scol, sindex))
+
+def findKey(list, k):
+    kval = -1
+    
+    for dic in list:
+        for j, key in enumerate(dic):
+            if key[0] == k:
+                return j
+    return kval
 
 
-d_list = filereader('MOCK_DATA.csv')
-# d_list = filereader('Boston_Lyft_Uber_Data.csv')
+def main():
+    d_list = filereader('MOCK_DATA.csv')
+    # d_list = filereader('Boston_Lyft_Uber_Data.csv')
 
-#print(*d_list, sep="\n")
-#print("# of list items: ", len(d_list))
+    #print(*d_list, sep="\n")
+    #print("# of list items: ", len(d_list))
 
-#update list with numerical vals in each col only
-upd_list = non_num(d_list)
-print("# of list1 items: ", len(upd_list))
-#print(*upd_list, sep="\n")
+    #update list with numerical vals in each col only
+    upd_list = non_num(d_list)
+    #remove rows w empty 
+    upd_list2 = rem_empty(upd_list)
 
-#remove rows w empty 
-upd_list2 = rem_empty(upd_list)
-print("new list after cleanup: \n")
-print(*upd_list2, sep="\n")
-print("# of list2 items: ", len(upd_list2))
+    # print("\nnew list after cleanup: \n")
+    upd_list3 = rem_dups(upd_list2)
 
-print("\nnew list after cleanup: \n")
-upd_list3 = rem_dups(upd_list2)
-print("# of list3 items: ", len(upd_list3))
-print(*upd_list3, sep="\n")
+    len3 = len(upd_list3)
+    search = 'colC'
+    keyIndex = findKey(upd_list3, search)
+
+    if(keyIndex > -1):
+        print("key index found at ", keyIndex, '\n')
+    else:
+        (search, " not found within key values\n")
+    templist = quickSort(upd_list3, len3, search, keyIndex)
+    #show updated, sorted list
+    print(*templist, sep="\n")
+
+
+    #menu of options...
+
+main()
