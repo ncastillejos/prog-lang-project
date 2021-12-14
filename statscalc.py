@@ -1,3 +1,13 @@
+# course: cmps3500
+# CLASS Project
+# PYTHON IMPLEMENTATION OF A CUSTOM STATISTICS SUMMARY CALCULATOR
+# date: 12/13/21
+# Student 1: Michaelted Acosta
+# Student 2: Nancy Castillejos
+# Student 3: Jesus Rojas
+# description: Implementation of a statistics summary Calculator
+
+
 import csv
 from collections import OrderedDict
 from typing import OrderedDict
@@ -227,6 +237,7 @@ def main():
         file.close()
         d_list = filereader(fileInput)
         print("{} has been read\n".format(fileInput))
+
     except FileNotFoundError:
         print("\nCould not find the file. Exiting Program.")
         return
