@@ -4,6 +4,16 @@ from typing import OrderedDict
 from random import randint
 
 
+def printMenu():
+    print("Commands")
+    print("----------------------------")
+    print("1 - Print Contents of Original File\n")
+    print("2 - Clean the File\n")
+    print("3 - Search an element in a Column\n")
+    print("4 - Statistical Operations\n")
+    print("0 - Exit\n")
+
+
 def filereader(file_path):
     # open csv file in read mode
     with open(file_path, 'r') as csv_obj:
@@ -42,7 +52,7 @@ def rem_empty(list):
     lim = range(len(list))
 
     for index, item in enumerate(list):
-        #print(index, '\t', item, '\n')
+        # print(index, '\t', item, '\n')
         lod = len(item.keys())
         # print(lod)
 
@@ -66,11 +76,9 @@ def rem_dups(list):
     return newlist
 
 
-def quickSort(list, length):
+def quickSort(list, length, scol, sindex):
     listlen = length
-    print("length of list: ", listlen, '\n')
     if(listlen < 2):
-        print("returning list", *list, sep="\n")
         return list
     low = []
     same = []
@@ -78,85 +86,218 @@ def quickSort(list, length):
 
     # generate random value in range of list length
     randrow = randint(0, listlen - 1)
-    print("randrow: ", randrow)
+
     # unpack row/dictionary
     randdict = list[randrow]
-    randc = randdict[1]
-    # convert col c data to float
+    randc = randdict[sindex]
+
+    # convert col c data to float, (col, data)
     pivot = float(randc[1])
-    print('randrow', randrow, ': ', randdict, '\n')
-    # print('randc', pivot, '\n')
+
+    #print('randrow', randrow, ': ', randdict, '\n')
+    #print(sindex, ': randc:', randc, '\n')
 
     for dict in list:
-        for key in dict:
-            if(key[0] == 'colC'):
-                # print(key, '\n')    #col name
-                # print(key[1], '\n')     #col data
-                val = float(key[1])
-                print("comparing val: ", val, " with pivot: ", pivot, '\n')
+        for set in dict:
+            # check key value (key, data)
+            if(set[0] == scol):
+                val = float(set[1])
 
                 if(val < pivot):
-                    # print("dict added to low: ", dict)
                     low.append(dict)
                 elif (val == pivot):
-                    # print("dict added to same: ", dict)
                     same.append(dict)
                 elif (val > pivot):
-                    # print("dict added to high: ", dict)
                     high.append(dict)
+
+    # update length of of low and high
     llength = len(low)
-    slength = len(same)
     hlength = len(high)
-    return (quickSort(low, llength) + same + quickSort(high, hlength))
+
+    return (quickSort(low, llength, scol, sindex) + same + quickSort(high, hlength, scol, sindex))
+
+
+def findKey(list, k):
+    kval = -1
+
+    for dic in list:
+        for j, key in enumerate(dic):
+            if key[0] == k:
+                return j
+    return kval
+
+
+def statsOps(list):
+    print("stats operation function")
+
+
+def searchData(list, searchcol, searchval):
+    length = len(list)
+    print("entered search func\nsearchcol: ", searchcol)
+    keyIndex = findKey(list, searchcol)
+    if keyIndex <= -1:
+        return (searchcol, " column not found")
+
+    templist = quickSort(list, length, searchcol, keyIndex)
+    cols = []
+    for dict in list:
+        for set in dict:
+            # check key value (key, data)
+            if(set[0] == searchcol):
+                cols.append(set)
+
+    # print(cols, sep="\n")
+    foundindex = []
+    for i in range(len(cols)):
+        if cols[i][1] == searchval:
+            foundindex.append(i)
+    print(foundindex, "\n")
+
+    for i in foundindex:
+        ind = int(foundindex[i])
+        print(searchval, " found in", searchcol, " at position ",
+              foundindex[i], ": ", list[ind], "\n")
+
+    # foundindex = []
+    # foundindex = BinarySearch(cols, searchval)
+
+    # show updated, sorted list
+    #print(*templist, sep="\n")
+
+
+def BinarySearch(lys, val):
+    indeces = []
+    first = 0
+    last = len(lys)-1
+    index = -1
+
+    while (first <= last) and (index == -1):
+        mid = (first+last)//2
+        if lys[mid] == val:
+            index = mid
+        else:
+            if val < lys[mid]:
+                last = mid - 1
+            else:
+                first = mid + 1
+    indeces.append(index)
+    return index
+
+
+def mean(mean_list):
+    mean = 0.0  # hold mean variable
+    count = 0  # hold number of values present
+
+    print("Enter the column that you would like to calculate the MEAN for: ")
+    columnChoice = input()  # hold the specific column of mean value
+
+    print("Calculating Mean...")
+    for dict in mean_list:
+        for key in dict:
+            if(key[0] == columnChoice):
+                mean = mean + int(key[1])  # add each value to mean
+                count = count + 1  # keep number count
+
+    mean = mean / count  # calculate actual mean value
+
+    return mean
+
+
+def countNum(mean_list):
+    count = 0  # hold count for values
+
+    print("Enter the column that you would like to find the Count for: ")
+    columnChoice = input()  # hold the specific column for min value
+
+    print("Calculating the count for the chosen column...")
+    for dict in mean_list:
+        for key in dict:
+            if(key[0] == columnChoice):
+                count = count + 1  # calculate actual mean value
+
+    return count
 
 
 def main():
+    clean_list = []
+
+    try:
+        fileInput = input("What CSV file would you like to open? \t")
+        file = open(fileInput, newline='')
+        file.close()
+        d_list = filereader(fileInput)
+        print("{} has been read\n".format(fileInput))
+    except FileNotFoundError:
+        print("\nCould not find the file. Exiting Program.")
+        return
+
+        # d_list = filereader('MOCK_DATA.csv')
+        # d_list = filereader('Boston_Lyft_Uber_Data.csv')
+
+        # print(*d_list, sep="\n")
+        # print("# of list items: ", len(d_list))
+
     while True:
-        print("Commands\n")
-        print("----------------------------")
-        print("1 - Load a File\n")
-        print("2 - Print Contents of File\n")
-        print("3 - Clean a File\n")
-        print("4 - Search an element in a Column\n")
-        print("0 - Exit\n")
+        printMenu()
 
         command = input("Enter a Command Number: ").lower()
         if command == '1':
-            fileInput = input("Name of file: ")
-            file = open(fileInput, newline='')
-            file.close()
-            d_list = filereader(fileInput)
-            print("{} has been read\n\n".format(fileInput))
-            # d_list = filereader('MOCK_DATA.csv')
-            # d_list = filereader('Boston_Lyft_Uber_Data.csv')
-
-            #print(*d_list, sep="\n")
-            # print("# of list items: ", len(d_list))
-
-        elif command == '2':
             print("Contents of File\n")
             print("----------------")
             print(*d_list, sep="\n")
+            print("\n\n")
+
+        elif command == '2':
+            print("Cleaning {}\n\n".format(fileInput))
+            upd_list = non_num(d_list)
+            upd_list2 = rem_empty(upd_list)
+            clean_list = rem_dups(upd_list2)
+            print("\n\n")
 
         elif command == '3':
-            # update list with numerical vals in each col only
-            upd_list = non_num(d_list)
-            # print("# of list1 items: ", len(upd_list))
-            #print(*upd_list, sep="\n")
-
-            # remove rows w empty
-            upd_list2 = rem_empty(upd_list)
-            # print("new list after cleanup: \n")
-            # print(*upd_list2, sep="\n")
-            # print("# of list2 items: ", len(upd_list2))
-
-            print("\nnew list after cleanup: \n")
-            upd_list3 = rem_dups(upd_list2)
-            # print("# of list3 items: ", len(upd_list3))
-            # print(*upd_list3, sep="\n")
+            # search function call
+            #print("Please enter a value to search for: \n")
+            sval = input("Please enter a value to search for:")
+            #print("Search dataset or specific column?\n")
+            scope = input(
+                "Search dataset (d) or specific column (c)? ").lower()
+            if scope == 'c':
+                print('scope: c')
+                col = input("Enter column to search in: ")
+                searchData(clean_list, col, sval)
+            elif scope == 'd':
+                print('')
+                searchData(clean_list, col, 'dataset')
+            else:
+                print("invalid input\n")
 
         elif command == '4':
-            templist = quickSort(upd_list3, len(upd_list3))
+            if bool(clean_list) == False:
+                print("Please clean the file first\n\n")
+            else:
+                while True:
+                    print("\n\nWhat would you like to do?\n")
+                    print("1 - Find the Mean\n")
+                    print("2 - Find the Count\n")
+                    print("0 - Go Back")
+
+                    sCommand = input("Enter a Number: ").lower()
+                    if sCommand == '1':
+                        sMean = mean(clean_list)
+                        print("The mean is ")
+                        print(sMean)
+
+                    elif sCommand == '2':
+                        sCount = countNum(clean_list)
+                        print("The count is ")
+                        print(sCount)
+
+                    elif sCommand == '0':
+                        print("\n\n")
+                        break
+
+                    else:
+                        print("Command does not exist")
 
         elif command == '0':
             print("Exiting Program")
